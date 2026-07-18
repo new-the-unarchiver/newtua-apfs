@@ -8,8 +8,8 @@ use std::io::Cursor;
 use apfs_core::object::fletcher64_checksum;
 use apfs_core::{ApfsContainer, ApfsError};
 
-const HEAD: &[u8] = include_bytes!("../../tests/data/apfs_nxsb_head.bin");
-const CHAIN: &[u8] = include_bytes!("../../tests/data/apfs_container_chain.bin");
+const HEAD: &[u8] = include_bytes!("data/apfs_nxsb_head.bin");
+const CHAIN: &[u8] = include_bytes!("data/apfs_container_chain.bin");
 
 /// `NX_INCOMPAT_FUSION` (Apple *APFS Reference*, `nx_incompatible_features`).
 const NX_INCOMPAT_FUSION: u64 = 0x100;

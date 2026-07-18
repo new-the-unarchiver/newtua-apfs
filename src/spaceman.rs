@@ -18,13 +18,13 @@ use crate::bytes::{le_u32, le_u64};
 const SM_BLOCKS_PER_CHUNK: usize = 36; // u32 (== 8 * sm_block_size)
 const SM_CHUNKS_PER_CIB: usize = 40; // u32
 const SM_DEV0: usize = 48; // spaceman_device_t sm_dev[0] (main device)
-                           // `spaceman_device_t` field offsets (relative to the device base).
+// `spaceman_device_t` field offsets (relative to the device base).
 const DEV_BLOCK_COUNT: usize = 0; // u64
 const DEV_CHUNK_COUNT: usize = 8; // u64
 const DEV_CIB_COUNT: usize = 16; // u32
 const DEV_CAB_COUNT: usize = 20; // u32
 const DEV_ADDR_OFFSET: usize = 32; // u32 — byte offset within the spaceman block
-                                   // `chunk_info_block_t` (CIB) offsets.
+// `chunk_info_block_t` (CIB) offsets.
 const CIB_CHUNK_INFO_COUNT: usize = 36; // u32
 const CIB_CHUNK_INFO: usize = 40; // chunk_info_t[]
 const CHUNK_INFO_LEN: usize = 32;

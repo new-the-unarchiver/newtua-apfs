@@ -13,7 +13,7 @@ use std::io::Cursor;
 
 use apfs_core::ApfsContainer;
 
-const CHAIN: &[u8] = include_bytes!("../../tests/data/apfs_container_chain.bin");
+const CHAIN: &[u8] = include_bytes!("data/apfs_container_chain.bin");
 const BLOCK_SIZE: usize = 4096;
 
 /// APFS volume superblock magic `APFS_MAGIC` ('BSPA', "APSB", LE 0x42535041).

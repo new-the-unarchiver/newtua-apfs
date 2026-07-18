@@ -7,7 +7,7 @@
 
 use apfs_core::omap::ObjectMap;
 
-const CHAIN: &[u8] = include_bytes!("../../tests/data/apfs_container_chain.bin");
+const CHAIN: &[u8] = include_bytes!("data/apfs_container_chain.bin");
 const BLOCK_SIZE: usize = 4096;
 
 fn block(idx: usize) -> &'static [u8] {

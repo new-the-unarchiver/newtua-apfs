@@ -26,8 +26,8 @@
 use std::io::{Read, Seek};
 
 use crate::btree::{self, BTreeSubtype};
-use crate::fsrecord::{decode_jkey, RecordType};
-use crate::object::{fletcher64_checksum, fletcher64_stored, ObjPhys};
+use crate::fsrecord::{RecordType, decode_jkey};
+use crate::object::{ObjPhys, fletcher64_checksum, fletcher64_stored};
 use crate::omap::ObjectMap;
 use crate::volume::ApfsVolume;
 
@@ -418,7 +418,7 @@ mod tests {
     // real Apple-minted P4 fixture's live APSB (block 438) — a Snapshot whose
     // sblock_oid points at it must "mount" to the same volume the existing
     // navigation already reads.
-    const P4_CONTENT: &[u8] = include_bytes!("../../tests/data/apfs_content.bin");
+    const P4_CONTENT: &[u8] = include_bytes!("../tests/data/apfs_content.bin");
     const P4_BLOCK_SIZE: usize = 4096;
     const P4_APSB_BLOCK: u64 = 438;
 

@@ -16,11 +16,11 @@ use std::io::Cursor;
 use apfs_core::dir::open_path;
 use apfs_core::volume::ApfsVolume;
 use apfs_core::xattr::{
-    get_xattr, list_xattrs, symlink_target, XattrValue, XATTR_NAME_DECMPFS,
-    XATTR_NAME_RESOURCE_FORK,
+    XATTR_NAME_DECMPFS, XATTR_NAME_RESOURCE_FORK, XattrValue, get_xattr, list_xattrs,
+    symlink_target,
 };
 
-const CONTENT: &[u8] = include_bytes!("../../tests/data/apfs_content.bin");
+const CONTENT: &[u8] = include_bytes!("data/apfs_content.bin");
 const BLOCK_SIZE: usize = 4096;
 const APSB_BLOCK: usize = 438;
 
@@ -82,9 +82,11 @@ fn get_xattr_absent_is_none() {
     let oid = inode_oid("/plain.txt");
     let mut r = Cursor::new(CONTENT);
     let vol = volume();
-    assert!(get_xattr(&mut r, &vol, oid, "no.such.attr", BLOCK_SIZE)
-        .expect("get_xattr")
-        .is_none());
+    assert!(
+        get_xattr(&mut r, &vol, oid, "no.such.attr", BLOCK_SIZE)
+            .expect("get_xattr")
+            .is_none()
+    );
 }
 
 #[test]
@@ -150,9 +152,11 @@ fn non_symlink_has_no_symlink_target() {
     let oid = inode_oid("/plain.txt");
     let mut r = Cursor::new(CONTENT);
     let vol = volume();
-    assert!(symlink_target(&mut r, &vol, oid, BLOCK_SIZE)
-        .expect("symlink_target")
-        .is_none());
+    assert!(
+        symlink_target(&mut r, &vol, oid, BLOCK_SIZE)
+            .expect("symlink_target")
+            .is_none()
+    );
 }
 
 #[test]
@@ -172,10 +176,10 @@ fn file_without_resource_fork_yields_none() {
 /// corpus does not produce: an *embedded* (rather than stream) ResourceFork, and
 /// a malformed zero-length-name XATTR key that must be skipped.
 mod synthetic {
-    use super::{Cursor, BLOCK_SIZE};
+    use super::{BLOCK_SIZE, Cursor};
     use apfs_core::object::fletcher64_checksum;
     use apfs_core::volume::ApfsVolume;
-    use apfs_core::xattr::{list_xattrs, resource_fork, XattrValue};
+    use apfs_core::xattr::{XattrValue, list_xattrs, resource_fork};
 
     fn put_u16(b: &mut [u8], o: usize, v: u16) {
         b[o..o + 2].copy_from_slice(&v.to_le_bytes());

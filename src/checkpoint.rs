@@ -14,7 +14,7 @@
 //! it as residue, never as an anomaly).
 
 use crate::container::NX_MAXIMUM_BLOCK_SIZE;
-use crate::object::{fletcher64_checksum, fletcher64_stored, ObjPhys};
+use crate::object::{ObjPhys, fletcher64_checksum, fletcher64_stored};
 
 /// Object type code `OBJECT_TYPE_NX_SUPERBLOCK` (Apple): `o_type & 0xffff == 1`.
 const OBJECT_TYPE_NX_SUPERBLOCK: u16 = 0x1;

@@ -85,7 +85,7 @@ impl ObjPhys {
 pub fn fletcher64_checksum(block: &[u8]) -> u64 {
     // APFS Fletcher-64 (Apple names the algorithm; the modular steps follow the
     // libfsapfs formulation and are validated against a real Apple-stored
-    // o_cksum in core/tests/object.rs):
+    // o_cksum in tests/object.rs):
     //   - iterate the object as 32-bit little-endian words,
     //   - treat the 8-byte o_cksum field (the first two words) as zero,
     //   - accumulate two running sums modulo 0xffffffff,

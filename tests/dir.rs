@@ -17,7 +17,7 @@ use std::io::Cursor;
 use apfs_core::dir::{list_dir, lookup_child, open_path};
 use apfs_core::volume::ApfsVolume;
 
-const FSTREE: &[u8] = include_bytes!("../../tests/data/apfs_fstree.bin");
+const FSTREE: &[u8] = include_bytes!("data/apfs_fstree.bin");
 const BLOCK_SIZE: usize = 4096;
 /// The APSB (volume superblock) sits at block 371 in the fixture.
 const APSB_BLOCK: usize = 371;
@@ -169,7 +169,7 @@ mod synthetic {
     //! A hand-built two-level *virtual* fs-tree exercises the index-node descent
     //! and the cycle guard with valid Fletcher-64 checksums (the real fixture's
     //! fs-tree is a single leaf, so these production paths need synthetic input).
-    use super::{Cursor, BLOCK_SIZE};
+    use super::{BLOCK_SIZE, Cursor};
     use apfs_core::object::fletcher64_checksum;
 
     const OMAP_TYPE: u16 = 0xb;
@@ -320,7 +320,7 @@ mod synthetic {
     fn descends_index_node_to_leaf() {
         // Walk a two-level virtual fs-tree: the index root resolves its child oid
         // through the omap and the leaf DIR_REC is found.
-        use apfs_core::dir::{list_dir, lookup_child, ROOT_DIR_INO_NUM};
+        use apfs_core::dir::{ROOT_DIR_INO_NUM, list_dir, lookup_child};
         use apfs_core::volume::ApfsVolume;
         let img = build_index_image();
         let vol = ApfsVolume::parse(&img[0..BLOCK_SIZE]).expect("parse synthetic APSB");
@@ -339,7 +339,7 @@ mod synthetic {
     fn cycle_guard_fires_on_self_referential_node() {
         // An index node whose only child oid maps back to itself must trip the
         // cycle guard rather than loop forever.
-        use apfs_core::dir::{list_dir, ROOT_DIR_INO_NUM};
+        use apfs_core::dir::{ROOT_DIR_INO_NUM, list_dir};
         use apfs_core::volume::ApfsVolume;
         let mut img = vec![0u8; BLOCK_SIZE * 4];
         write_apsb(&mut img[0..BLOCK_SIZE], 1, 100, 1);

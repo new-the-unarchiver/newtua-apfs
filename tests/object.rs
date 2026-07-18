@@ -4,10 +4,10 @@
 //! recomputable Fletcher-64; see `tests/data/README.md`).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use apfs_core::object::{fletcher64_checksum, ObjPhys, OBJ_PHYS_LEN};
+use apfs_core::object::{OBJ_PHYS_LEN, ObjPhys, fletcher64_checksum};
 
-/// Repo-root `tests/data/` reached from `core/tests/` (two levels up).
-const HEAD: &[u8] = include_bytes!("../../tests/data/apfs_nxsb_head.bin");
+/// This crate's own `tests/data/`.
+const HEAD: &[u8] = include_bytes!("data/apfs_nxsb_head.bin");
 
 const BLOCK_SIZE: usize = 4096;
 

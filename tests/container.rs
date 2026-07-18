@@ -4,10 +4,10 @@
 //! (magic NXSB, 4096-byte blocks). See `tests/data/README.md`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use apfs_core::container::{NxSuperblock, NX_MAGIC};
 use apfs_core::ApfsError;
+use apfs_core::container::{NX_MAGIC, NxSuperblock};
 
-const HEAD: &[u8] = include_bytes!("../../tests/data/apfs_nxsb_head.bin");
+const HEAD: &[u8] = include_bytes!("data/apfs_nxsb_head.bin");
 const BLOCK_SIZE: usize = 4096;
 
 fn block(n: usize) -> &'static [u8] {
@@ -30,8 +30,8 @@ fn parse_decodes_real_container_geometry() {
     assert_eq!(nx.xid, 2);
     assert_eq!(nx.omap_oid, 343);
     assert_eq!(nx.fs_oids, vec![1026]); // max_file_systems == 1
-                                        // Container UUID echoed verbatim by `diskutil info` as
-                                        // 40115033-9523-4496-96A2-0EDADEECA565.
+    // Container UUID echoed verbatim by `diskutil info` as
+    // 40115033-9523-4496-96A2-0EDADEECA565.
     assert_eq!(
         nx.uuid,
         [

@@ -7,11 +7,11 @@
 
 use std::io::Cursor;
 
+use apfs_core::ApfsError;
 use apfs_core::btree::{self, BTreeSubtype};
 use apfs_core::object::fletcher64_checksum;
-use apfs_core::ApfsError;
 
-const CHAIN: &[u8] = include_bytes!("../../tests/data/apfs_container_chain.bin");
+const CHAIN: &[u8] = include_bytes!("data/apfs_container_chain.bin");
 const BLOCK_SIZE: usize = 4096;
 
 #[test]
@@ -189,7 +189,7 @@ fn descend_guards_against_self_cycle() {
     // value: val_base = block.len() - btree_info(40); value at val_base-8 = child#.
     let val_base = BLOCK_SIZE - 40;
     node[val_base - 8..val_base].copy_from_slice(&0u64.to_le_bytes()); // child = block 0
-                                                                       // recompute the node checksum so it passes the cksum gate
+    // recompute the node checksum so it passes the cksum gate
     let cks = fletcher64_checksum(node);
     node[0..8].copy_from_slice(&cks.to_le_bytes());
 

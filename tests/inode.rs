@@ -9,10 +9,10 @@
 //! gid@76, mode@80, xfields@92.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use apfs_core::fsrecord::{decode_jkey, RecordType};
-use apfs_core::inode::{ns_to_datetime, Inode};
+use apfs_core::fsrecord::{RecordType, decode_jkey};
+use apfs_core::inode::{Inode, ns_to_datetime};
 
-const FSTREE: &[u8] = include_bytes!("../../tests/data/apfs_fstree.bin");
+const FSTREE: &[u8] = include_bytes!("data/apfs_fstree.bin");
 const BLOCK_SIZE: usize = 4096;
 /// The fs-tree leaf node is a single block at paddr 365 (verified via the chain).
 const FSTREE_NODE: usize = 365;

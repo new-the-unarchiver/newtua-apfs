@@ -16,7 +16,7 @@ use std::io::Cursor;
 
 use apfs_core::spaceman::is_block_free;
 
-const CHAIN: &[u8] = include_bytes!("../../tests/data/apfs_container_chain.bin");
+const CHAIN: &[u8] = include_bytes!("data/apfs_container_chain.bin");
 const BLOCK_SIZE: usize = 4096;
 /// The live space manager (`nx_spaceman_oid` 1024) resolves to block 11 via the
 /// live checkpoint map (verified: the highest-xid NXSB's descriptor window).

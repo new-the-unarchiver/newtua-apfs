@@ -24,9 +24,9 @@
 use std::io::{Read, Seek};
 
 use crate::btree::{self, BTreeSubtype};
-use crate::fsrecord::{decode_jkey, RecordType};
+use crate::fsrecord::{RecordType, decode_jkey};
 use crate::inode::Inode;
-use crate::object::{fletcher64_checksum, fletcher64_stored, ObjPhys};
+use crate::object::{ObjPhys, fletcher64_checksum, fletcher64_stored};
 use crate::omap::ObjectMap;
 use crate::volume::ApfsVolume;
 
@@ -449,7 +449,7 @@ mod tests {
     // results are independently validated against `fls`/`istat` by the dir/inode
     // integration tests — is the oracle, so this proves the keyed pruning never
     // drops a covering record.
-    const FSTREE: &[u8] = include_bytes!("../../tests/data/apfs_fstree.bin");
+    const FSTREE: &[u8] = include_bytes!("../tests/data/apfs_fstree.bin");
     const FSTREE_BLOCK_SIZE: usize = 4096;
     const FSTREE_APSB_BLOCK: usize = 371;
 
@@ -527,7 +527,7 @@ mod tests {
         let mut key = Vec::new();
         key.extend_from_slice(&jkey(9, 2));
         key.extend_from_slice(&0u32.to_le_bytes()); // hashed len 0
-                                                    // no name bytes; unhashed len also reads 0 -> None
+        // no name bytes; unhashed len also reads 0 -> None
         assert_eq!(decode_drec_name(&key), None);
     }
 

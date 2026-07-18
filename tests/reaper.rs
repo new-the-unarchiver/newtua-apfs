@@ -13,7 +13,7 @@ use std::io::Cursor;
 
 use apfs_core::reaper::pending_objects;
 
-const CHAIN: &[u8] = include_bytes!("../../tests/data/apfs_container_chain.bin");
+const CHAIN: &[u8] = include_bytes!("data/apfs_container_chain.bin");
 const BLOCK_SIZE: usize = 4096;
 /// The live reaper (`nx_reaper_oid` 1025) resolves to block 12.
 const REAPER_BLOCK: u64 = 12;

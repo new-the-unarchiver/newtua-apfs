@@ -36,14 +36,14 @@ pub fn pending_objects<R: std::io::Read + std::io::Seek>(
     const NR_HEAD: usize = 48; // u64 — ephemeral oid of the first reap list
     const NR_TYPE: usize = 72; // u32 — in-progress object type
     const NR_OID: usize = 88; // u64 — in-progress object id (0 if none)
-                              // nx_reap_list_phys_t field offsets.
+    // nx_reap_list_phys_t field offsets.
     const NRL_NEXT: usize = 32; // u64 — ephemeral oid of the next list (0 = end)
     const NRL_COUNT: usize = 48; // u32
     const NRL_ENTRIES: usize = 64; // nx_reap_list_entry_t[]
     const NRLE_LEN: usize = 40;
     const NRLE_TYPE: usize = 8; // u32
     const NRLE_OID: usize = 24; // u64
-                                // A reap-list chain longer than this is a cyclic/corrupt graph.
+    // A reap-list chain longer than this is a cyclic/corrupt graph.
     const MAX_REAP_LISTS: usize = 4096;
 
     let reaper = read_obj_block(reader, reaper_paddr, block_size)?;
@@ -134,7 +134,7 @@ mod tests {
         // Reap list: nrl_next == 0 (end), nrl_count == 2, two entries at @64.
         put_u64(&mut img, list_b, 32, 0); // nrl_next
         put_u32(&mut img, list_b, 48, 2); // nrl_count
-                                          // entry 0 @64: nrle_type@8, nrle_oid@24
+        // entry 0 @64: nrle_type@8, nrle_oid@24
         put_u32(&mut img, list_b, 64 + 8, 0x4000_000d); // FS object
         put_u64(&mut img, list_b, 64 + 24, 500);
         // entry 1 @104

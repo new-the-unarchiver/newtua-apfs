@@ -207,8 +207,8 @@ pub fn node_entries(block: &[u8], subtype: BTreeSubtype) -> Vec<Entry<'_>> {
     let mut out = Vec::with_capacity(nkeys);
     for i in 0..nkeys {
         let e = toc_start + i * entry_len; // bounded by MAX_BTN_NKEYS * 8
-                                           // A TOC entry must lie within the key area (before the keys begin) and
-                                           // within the node.
+        // A TOC entry must lie within the key area (before the keys begin) and
+        // within the node.
         if e + entry_len > key_area || e + entry_len > block.len() {
             break;
         }

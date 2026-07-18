@@ -25,9 +25,9 @@ use std::sync::Arc;
 use apfs_core::vfs::ApfsFs;
 use forensic_vfs::{FileId, FileSystem, FsKind, NodeKind, StreamId, TimeZonePolicy};
 
-/// The committed real macOS-authored APFS carve (repo-root `tests/data/`, two
-/// levels up from `core/tests/`). About 1.7 MB — safe to `include_bytes!`.
-const IMG: &[u8] = include_bytes!("../../tests/data/apfs_content.bin");
+/// The committed real macOS-authored APFS carve (this crate's own
+/// `tests/data/`). About 1.7 MB — safe to `include_bytes!`.
+const IMG: &[u8] = include_bytes!("data/apfs_content.bin");
 
 fn open() -> Arc<dyn FileSystem> {
     Arc::new(ApfsFs::open(Cursor::new(IMG.to_vec())).expect("open APFS container"))

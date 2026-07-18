@@ -393,11 +393,11 @@ mod tests {
     //! Snapshot-aware mounting over the committed P4 fixture (`apfs_content.bin`,
     //! ZERO snapshots — a real Apple-minted container). These exercise the
     //! `vfs`-feature snapshot seam only; the populated (with-snapshots) path is
-    //! validated by the env-gated point-in-time test in `core/tests/snapshot.rs`.
+    //! validated by the env-gated point-in-time test in `tests/snapshot.rs`.
     use super::*;
     use std::io::Cursor;
 
-    const CONTENT: &[u8] = include_bytes!("../../tests/data/apfs_content.bin");
+    const CONTENT: &[u8] = include_bytes!("../tests/data/apfs_content.bin");
 
     /// The live volume's transaction id — the newest point in the timeline.
     fn live_xid() -> u64 {

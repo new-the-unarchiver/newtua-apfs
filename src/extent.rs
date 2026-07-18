@@ -19,7 +19,7 @@
 use std::io::{Read, Seek};
 
 use crate::dir::for_each_fs_record_for_oid;
-use crate::fsrecord::{decode_jkey, RecordType};
+use crate::fsrecord::{RecordType, decode_jkey};
 use crate::inode::Inode;
 use crate::volume::ApfsVolume;
 

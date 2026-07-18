@@ -69,7 +69,7 @@ impl<R: Seek> Seek for CountingPartitionReader<R> {
                 return Err(std::io::Error::new(
                     std::io::ErrorKind::Unsupported,
                     "End-relative seek unsupported",
-                ))
+                ));
             }
         };
         self.pos = abs;

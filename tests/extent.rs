@@ -15,7 +15,7 @@ use apfs_core::extent::read_data;
 use apfs_core::volume::ApfsVolume;
 use sha2::{Digest, Sha256};
 
-const CONTENT: &[u8] = include_bytes!("../../tests/data/apfs_content.bin");
+const CONTENT: &[u8] = include_bytes!("data/apfs_content.bin");
 const BLOCK_SIZE: usize = 4096;
 /// The live volume superblock (APSB, xid 14) sits at block 438 in the fixture.
 const APSB_BLOCK: usize = 438;
@@ -117,7 +117,7 @@ fn list_extents_reports_hole_and_tail() {
 /// 16-gibibyte `DSTREAM` size or a near-overflow physical block). All objects
 /// carry valid Fletcher-64 checksums so the reader trusts them.
 mod synthetic {
-    use super::{Cursor, BLOCK_SIZE};
+    use super::{BLOCK_SIZE, Cursor};
     use apfs_core::extent::{read_data, read_stream};
     use apfs_core::object::fletcher64_checksum;
     use apfs_core::volume::ApfsVolume;
@@ -208,7 +208,7 @@ mod synthetic {
     /// A `j_inode_val_t` whose only xfield is a DSTREAM giving `size`.
     fn inode_value_with_size(size: u64) -> Vec<u8> {
         let mut v = vec![0u8; 92]; // fixed prefix
-                                   // xf_blob: num_exts 1, used_data 8, one descriptor (DSTREAM type 8, size 8).
+        // xf_blob: num_exts 1, used_data 8, one descriptor (DSTREAM type 8, size 8).
         v.extend_from_slice(&1u16.to_le_bytes());
         v.extend_from_slice(&8u16.to_le_bytes());
         v.extend_from_slice(&[8u8, 0]); // x_type=DSTREAM, x_flags

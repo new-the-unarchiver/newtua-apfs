@@ -74,10 +74,14 @@ pub enum ApfsError {
     Io(#[from] std::io::Error),
     /// No valid container superblock (NXSB) found in the checkpoint ring — a
     /// bootstrap failure, carries what was seen so the examiner can diagnose.
-    #[error("no valid NXSB superblock found (checked {checked} checkpoint slots; last magic seen: {last_magic:#010x})")]
+    #[error(
+        "no valid NXSB superblock found (checked {checked} checkpoint slots; last magic seen: {last_magic:#010x})"
+    )]
     NoValidSuperblock { checked: usize, last_magic: u32 },
     /// Object Fletcher-64 checksum did not validate.
-    #[error("object checksum mismatch at block {block}: stored {stored:#018x}, computed {computed:#018x}")]
+    #[error(
+        "object checksum mismatch at block {block}: stored {stored:#018x}, computed {computed:#018x}"
+    )]
     ChecksumMismatch {
         block: u64,
         stored: u64,
@@ -89,9 +93,7 @@ pub enum ApfsError {
     /// A block did not carry the expected object type — a short block, a
     /// wrong-typed object, or corruption. Carries the offending raw `o_type`
     /// (fleet "show the unrecognized value" rule).
-    #[error(
-        "unexpected object type in {structure}: expected {expected:#06x}, found {found:#010x}"
-    )]
+    #[error("unexpected object type in {structure}: expected {expected:#06x}, found {found:#010x}")]
     UnexpectedObjectType {
         structure: &'static str,
         expected: u32,
@@ -99,12 +101,16 @@ pub enum ApfsError {
     },
     /// A Fusion container was encountered but Fusion address translation is not
     /// yet supported — fail loud rather than mis-read physical addresses.
-    #[error("unsupported Fusion container (tier-2 device present); Fusion addressing not yet implemented")]
+    #[error(
+        "unsupported Fusion container (tier-2 device present); Fusion addressing not yet implemented"
+    )]
     UnsupportedFusion,
     /// The space manager uses chunk-info **address** blocks (`sm_cab_count > 0`),
     /// the multi-TB CAB indirection tier, which is not yet implemented — fail
     /// loud rather than mis-resolve an allocation chunk. Carries the count.
-    #[error("unsupported space-manager CAB tier (sm_cab_count = {count}); only inline CIB layout is implemented")]
+    #[error(
+        "unsupported space-manager CAB tier (sm_cab_count = {count}); only inline CIB layout is implemented"
+    )]
     UnsupportedSpacemanCab { count: u64 },
     /// A length/offset/count field from the image exceeded a sanity cap
     /// (allocation-bomb / corruption defense). Carries the offending value.

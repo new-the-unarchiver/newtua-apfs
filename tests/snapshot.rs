@@ -25,7 +25,7 @@ use std::io::Cursor;
 use apfs_core::snapshot::{list_snapshots, mount_snapshot, resolve_snapshot_xid};
 use apfs_core::volume::ApfsVolume;
 
-const CONTENT: &[u8] = include_bytes!("../../tests/data/apfs_content.bin");
+const CONTENT: &[u8] = include_bytes!("data/apfs_content.bin");
 const BLOCK_SIZE: usize = 4096;
 /// The live volume superblock (APSB) sits at block 438 in the P4 fixture.
 const APSB_BLOCK: usize = 438;
@@ -113,7 +113,7 @@ impl<R: std::io::Seek> std::io::Seek for PartitionView<R> {
                 return Err(std::io::Error::new(
                     std::io::ErrorKind::Unsupported,
                     "End-relative seek unsupported on a partition view",
-                ))
+                ));
             }
         };
         Ok(abs.saturating_sub(self.base))

@@ -1,0 +1,11 @@
+/target
+Cargo.lock.bak
+.DS_Store
+.code-index/
+# Локальные подмены зависимостей на соседние рабочие копии.
+# Публикуемые манифесты содержат только версии — см. README.
+/.cargo/config.toml
+# Внутренняя кухня живёт в приватном new-the-unarchiver/newtua-process
+/CLAUDE.md
+/.claude/
+/.superpowers/
