@@ -2,10 +2,12 @@
 Cargo.lock.bak
 .DS_Store
 .code-index/
-# Локальные подмены зависимостей на соседние рабочие копии.
-# Публикуемые манифесты содержат только версии — см. README.
+
+# Local dependency overrides pointing at sibling checkouts. Published manifests
+# carry versions only — see the project README.
 /.cargo/config.toml
-# Внутренняя кухня живёт в приватном new-the-unarchiver/newtua-process
+
+# The development-process repository is private; these live there.
 /CLAUDE.md
 /.claude/
 /.superpowers/
