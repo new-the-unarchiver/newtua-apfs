@@ -5,6 +5,11 @@ superblocks, object map, B-trees, file-system records, file extents,
 snapshots, and transparent `decmpfs` decompression over any `Read + Seek`
 source. Library import path: `apfs_core`.
 
+Maintained only as a dependency of
+**[New The Unarchiver](https://github.com/new-the-unarchiver)** (`newtua`) — a
+cross-platform archive extractor written in Rust, a modern rewrite of the macOS
+tool The Unarchiver.
+
 ## This is a forced fork
 
 It exists to unblock our own build, not as a product of its own. We do **not
