@@ -26,8 +26,8 @@
 use std::io::{Read, Seek};
 
 use crate::btree::{self, BTreeSubtype};
-use crate::fsrecord::{RecordType, decode_jkey};
-use crate::object::{ObjPhys, fletcher64_checksum, fletcher64_stored};
+use crate::fsrecord::{decode_jkey, RecordType};
+use crate::object::{fletcher64_checksum, fletcher64_stored, ObjPhys};
 use crate::omap::ObjectMap;
 use crate::volume::ApfsVolume;
 

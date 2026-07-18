@@ -1,7 +1,7 @@
 [package]
 name = "newtua-apfs"
 version = "0.2.0-newtua.1"
-edition = "2024"
+edition = "2021"
 rust-version = "1.85"
 license = "Apache-2.0"
 description = "Forced fork of SecurityRonin's `apfs-core` with the `forensicnomicon` dependency removed. Not maintained as a product."

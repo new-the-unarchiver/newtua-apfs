@@ -93,7 +93,9 @@ pub enum ApfsError {
     /// A block did not carry the expected object type — a short block, a
     /// wrong-typed object, or corruption. Carries the offending raw `o_type`
     /// (fleet "show the unrecognized value" rule).
-    #[error("unexpected object type in {structure}: expected {expected:#06x}, found {found:#010x}")]
+    #[error(
+        "unexpected object type in {structure}: expected {expected:#06x}, found {found:#010x}"
+    )]
     UnexpectedObjectType {
         structure: &'static str,
         expected: u32,

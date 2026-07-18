@@ -23,7 +23,7 @@
 use std::io::{Read, Seek};
 
 use crate::dir::for_each_fs_record_for_oid;
-use crate::fsrecord::{RecordType, decode_jkey};
+use crate::fsrecord::{decode_jkey, RecordType};
 use crate::volume::ApfsVolume;
 
 /// `XATTR_DATA_STREAM` flag (the value is in a referenced data stream).

@@ -28,7 +28,7 @@
 //! | 256 | 8    | `apfs_fs_flags`                      |
 //! | 704 | 256  | `apfs_volname[APFS_VOLNAME_LEN]`     |
 
-use crate::object::{ObjPhys, fletcher64_checksum, fletcher64_stored};
+use crate::object::{fletcher64_checksum, fletcher64_stored, ObjPhys};
 
 /// Volume superblock magic `APFS_MAGIC` ('BSPA', "APSB" in a hex dump).
 pub const APFS_MAGIC: u32 = 0x4253_5041;

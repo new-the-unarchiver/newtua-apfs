@@ -5,7 +5,7 @@
 //! `fsapfs_volume_superblock` struct. See `tests/data/README.md`.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use apfs_core::volume::{APFS_MAGIC, ApfsVolume};
+use apfs_core::volume::{ApfsVolume, APFS_MAGIC};
 
 const FSTREE: &[u8] = include_bytes!("data/apfs_fstree.bin");
 const BLOCK_SIZE: usize = 4096;
@@ -107,7 +107,7 @@ fn apsb_accessors_expose_all_fields() {
     assert_eq!(v.root_tree_type(), 0x2); // OBJECT_TYPE_BTREE storage word
     assert_eq!(v.extentref_tree_oid(), 357); // physical extent-ref tree block
     assert_eq!(v.snap_meta_tree_oid(), 340); // physical snap-meta tree block
-    // The volume UUID is non-zero (pstat reported a concrete UUID).
+                                             // The volume UUID is non-zero (pstat reported a concrete UUID).
     assert_ne!(v.uuid(), [0u8; 16]);
     let _ = v.fs_flags();
 }

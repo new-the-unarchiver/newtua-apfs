@@ -9,8 +9,8 @@
 //! gid@76, mode@80, xfields@92.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use apfs_core::fsrecord::{RecordType, decode_jkey};
-use apfs_core::inode::{Inode, ns_to_datetime};
+use apfs_core::fsrecord::{decode_jkey, RecordType};
+use apfs_core::inode::{ns_to_datetime, Inode};
 
 const FSTREE: &[u8] = include_bytes!("data/apfs_fstree.bin");
 const BLOCK_SIZE: usize = 4096;

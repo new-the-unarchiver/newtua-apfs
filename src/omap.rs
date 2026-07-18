@@ -29,7 +29,7 @@
 //! | 80  | 8    | `om_pending_revert_max`|
 
 use crate::btree::{self, BTreeSubtype};
-use crate::object::{ObjPhys, fletcher64_checksum, fletcher64_stored};
+use crate::object::{fletcher64_checksum, fletcher64_stored, ObjPhys};
 
 /// Object type code `OBJECT_TYPE_OMAP` (Apple): `o_type & 0xffff == 0xb`.
 const OBJECT_TYPE_OMAP: u16 = 0xb;

@@ -4,7 +4,7 @@
 //! recomputable Fletcher-64; see `tests/data/README.md`).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use apfs_core::object::{OBJ_PHYS_LEN, ObjPhys, fletcher64_checksum};
+use apfs_core::object::{fletcher64_checksum, ObjPhys, OBJ_PHYS_LEN};
 
 /// This crate's own `tests/data/`.
 const HEAD: &[u8] = include_bytes!("data/apfs_nxsb_head.bin");

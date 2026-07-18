@@ -92,7 +92,7 @@ fn decodes_inline_uncompressed_type9_marker() {
 
 #[test]
 fn decodes_inline_zlib_type3() {
-    use flate2::{Compression, write::ZlibEncoder};
+    use flate2::{write::ZlibEncoder, Compression};
     use std::io::Write;
     let data = b"compress this with zlib inline, type 3, the quick brown fox";
     let mut enc = ZlibEncoder::new(Vec::new(), Compression::default());
@@ -241,7 +241,7 @@ fn rejects_chunked_fork_backward_offset() {
 
 #[test]
 fn decodes_zlib_resource_fork_type4() {
-    use flate2::{Compression, write::ZlibEncoder};
+    use flate2::{write::ZlibEncoder, Compression};
     use std::io::Write;
     // Build a classic Resource-Manager fork: headerSize(BE)=256, then at 256 a
     // BE total-size, then LE numBlocks + (offset,size) table, then the blocks.
@@ -254,8 +254,8 @@ fn decodes_zlib_resource_fork_type4() {
     fork[0..4].copy_from_slice(&(header_size as u32).to_be_bytes()); // BE headerSize
     fork.extend_from_slice(&0u32.to_be_bytes()); // BE total-size prefix @256
     fork.extend_from_slice(&1u32.to_le_bytes()); // numBlocks = 1
-    // offsets are relative to header_size+4 (start of numBlocks). Block 0 starts
-    // right after the table: numBlocks(4) + one (offset,size) entry(8) = 12.
+                                                 // offsets are relative to header_size+4 (start of numBlocks). Block 0 starts
+                                                 // right after the table: numBlocks(4) + one (offset,size) entry(8) = 12.
     fork.extend_from_slice(&12u32.to_le_bytes()); // offset
     fork.extend_from_slice(&(comp.len() as u32).to_le_bytes()); // size
     fork.extend_from_slice(&comp);

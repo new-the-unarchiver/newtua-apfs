@@ -24,9 +24,9 @@
 use std::io::{Read, Seek};
 
 use crate::btree::{self, BTreeSubtype};
-use crate::fsrecord::{RecordType, decode_jkey};
+use crate::fsrecord::{decode_jkey, RecordType};
 use crate::inode::Inode;
-use crate::object::{ObjPhys, fletcher64_checksum, fletcher64_stored};
+use crate::object::{fletcher64_checksum, fletcher64_stored, ObjPhys};
 use crate::omap::ObjectMap;
 use crate::volume::ApfsVolume;
 
@@ -527,7 +527,7 @@ mod tests {
         let mut key = Vec::new();
         key.extend_from_slice(&jkey(9, 2));
         key.extend_from_slice(&0u32.to_le_bytes()); // hashed len 0
-        // no name bytes; unhashed len also reads 0 -> None
+                                                    // no name bytes; unhashed len also reads 0 -> None
         assert_eq!(decode_drec_name(&key), None);
     }
 

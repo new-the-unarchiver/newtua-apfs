@@ -8,7 +8,7 @@
 // and identity-op lints fire on these deliberate constructions.
 #![allow(clippy::unusual_byte_groupings, clippy::identity_op)]
 
-use apfs_core::fsrecord::{RecordType, decode_jkey, parse_xfields};
+use apfs_core::fsrecord::{decode_jkey, parse_xfields, RecordType};
 
 /// Build a raw `j_key.obj_id_and_type` from a 4-bit type and a 60-bit oid.
 fn jkey(ty: u64, oid: u64) -> u64 {
@@ -112,7 +112,7 @@ fn parse_xfields_two_fields_aligned() {
     blob.push(8);
     blob.push(0);
     blob.extend_from_slice(&40u16.to_le_bytes()); // DSTREAM size 40
-    // values: NAME "A\0" padded to 8, then 40-byte dstream
+                                                  // values: NAME "A\0" padded to 8, then 40-byte dstream
     blob.extend_from_slice(b"A\0");
     blob.extend_from_slice(&[0u8; 6]); // pad NAME to 8
     blob.extend_from_slice(&[0xCDu8; 40]); // dstream value
@@ -153,7 +153,7 @@ fn parse_xfields_value_running_past_blob_is_dropped() {
     blob.push(4); // x_type
     blob.push(0); // x_flags
     blob.extend_from_slice(&64u16.to_le_bytes()); // x_size = 64, but no value bytes
-    // descriptor table (8 bytes) fits; the 64-byte value does not.
+                                                  // descriptor table (8 bytes) fits; the 64-byte value does not.
     let fields = parse_xfields(&blob);
     assert!(fields.is_empty());
 }

@@ -26,13 +26,13 @@
 use std::io::{Read, Seek};
 
 use crate::decmpfs::{
-    self, Algorithm, CHUNK_SIZE, COMPRESSION_TYPE_OFFSET, HEADER_LEN, MAGIC, Storage,
+    self, Algorithm, Storage, CHUNK_SIZE, COMPRESSION_TYPE_OFFSET, HEADER_LEN, MAGIC,
     UNCOMPRESSED_SIZE_OFFSET,
 };
 
-use crate::ApfsError;
 use crate::inode::Inode;
 use crate::volume::ApfsVolume;
+use crate::ApfsError;
 
 /// Read a transparently-compressed file's content: decode the decmpfs payload
 /// (inline in the `header` xattr, or in the `com.apple.ResourceFork` stream)

@@ -6,9 +6,9 @@
 
 use std::io::Cursor;
 
-use apfs_core::ApfsError;
 use apfs_core::checkpoint::resolve_live_checkpoint;
 use apfs_core::container::NxSuperblock;
+use apfs_core::ApfsError;
 
 const HEAD: &[u8] = include_bytes!("data/apfs_nxsb_head.bin");
 const BLOCK_SIZE: usize = 4096;
