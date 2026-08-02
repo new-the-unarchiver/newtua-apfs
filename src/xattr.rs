@@ -13,7 +13,8 @@
 //!   the value bytes are the extents keyed by that dstream id.
 //!
 //! Forensically important named xattrs:
-//! - `com.apple.decmpfs` — transparent-compression header ([`crate::compression`]).
+//! - `com.apple.decmpfs` — transparent-compression header ([`crate::compression`]);
+//!   embedded or stream-backed, whichever the value's length calls for.
 //! - `com.apple.ResourceFork` — resource fork (non-embedded compressed payload),
 //!   stored as a stream xattr.
 //! - `com.apple.fs.symlink` — a symlink's target path, stored **embedded** in the
@@ -146,13 +147,28 @@ pub fn get_xattr<R: Read + Seek>(
     Ok(xattrs.into_iter().find(|x| x.name == name).map(|x| x.value))
 }
 
+/// Sanity cap on a **stream-backed** `com.apple.decmpfs` xattr. The xattr holds
+/// the 16-byte header plus, for the inline (odd) compression types, the whole
+/// compressed payload; XNU itself caps that at `MAX_DECMPFS_XATTR_SIZE` (3802
+/// bytes, `bsd/sys/decmpfs.h`), so this generous multiple bounds the allocation
+/// without any risk of refusing real data. The stream `size` comes from the
+/// image — never allocate on it unchecked.
+const MAX_DECMPFS_XATTR_BYTES: u64 = 1 << 20; // 1 MiB
+
 /// Return the raw `com.apple.decmpfs` header bytes for an inode, if it is a
-/// transparently-compressed file. The decmpfs header is always embedded in the
-/// xattr (the bulk payload, when large, lives in the resource fork — see
-/// [`resource_fork`]).
+/// transparently-compressed file (the bulk payload of an even compression type
+/// lives in the resource fork instead — see [`resource_fork`]).
+///
+/// Both xattr forms carry it: APFS embeds the value while it fits in the
+/// fs-tree record (a couple of hundred bytes on a real image) and spills the
+/// rest to a data stream, so an ordinary volume holds both forms side by side.
+/// A stream-backed value is read through the extent machinery exactly as
+/// [`resource_fork`] reads its own.
 ///
 /// # Errors
-/// As [`list_xattrs`].
+/// As [`list_xattrs`], plus [`crate::ApfsError::FieldOutOfRange`] if a
+/// stream-backed value claims more than [`MAX_DECMPFS_XATTR_BYTES`], plus the
+/// structural errors of [`crate::extent::read_stream`].
 pub fn decmpfs_header<R: Read + Seek>(
     reader: &mut R,
     volume: &ApfsVolume,
@@ -160,10 +176,20 @@ pub fn decmpfs_header<R: Read + Seek>(
     block_size: usize,
 ) -> crate::Result<Option<Vec<u8>>> {
     match get_xattr(reader, volume, inode_oid, XATTR_NAME_DECMPFS, block_size)? {
-        // The decmpfs xattr is embedded; an unexpected stream form yields its
-        // (empty) embedded bytes, which the decoder then rejects loudly.
         Some(XattrValue::Embedded(bytes)) => Ok(Some(bytes)),
-        Some(XattrValue::Stream { .. }) | None => Ok(None),
+        Some(XattrValue::Stream { dstream_oid, size }) => {
+            if size > MAX_DECMPFS_XATTR_BYTES {
+                return Err(crate::ApfsError::FieldOutOfRange {
+                    structure: "com.apple.decmpfs j_xattr_dstream",
+                    field: "size",
+                    value: size,
+                    cap: MAX_DECMPFS_XATTR_BYTES,
+                });
+            }
+            let bytes = crate::extent::read_stream(reader, volume, dstream_oid, size, block_size)?;
+            Ok(Some(bytes))
+        }
+        None => Ok(None),
     }
 }
 

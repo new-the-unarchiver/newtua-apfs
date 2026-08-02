@@ -65,6 +65,30 @@ pub fn read_compressed<R: Read + Seek>(
     decompress_decmpfs(header, fork.as_deref())
 }
 
+/// The logical file size a decmpfs header declares (`uncompressed_size`).
+///
+/// A transparently-compressed file has no ordinary data stream, so its inode
+/// carries no `INO_EXT_TYPE_DSTREAM` xfield and [`crate::inode::Inode::size`] is
+/// `None`/0: the real size is only in this header. [`crate::extent::data_size`]
+/// is the inode-level answer; this is the header-level one, for a caller that
+/// already holds the bytes from [`crate::xattr::decmpfs_header`].
+///
+/// # Errors
+/// [`ApfsError::Decmpfs`] if the header is shorter than 16 bytes or its magic is
+/// not `'cmpf'` — the size of a header we cannot identify is not reported as a
+/// number the caller might trust.
+pub fn uncompressed_size(header: &[u8]) -> crate::Result<u64> {
+    if header.len() < HEADER_LEN {
+        return Err(ApfsError::Decmpfs(
+            "decmpfs xattr shorter than 16-byte header",
+        ));
+    }
+    if le_u32(header, 0)? != MAGIC {
+        return Err(ApfsError::Decmpfs("decmpfs bad magic (expected 'cmpf')"));
+    }
+    le_u64(header, UNCOMPRESSED_SIZE_OFFSET)
+}
+
 /// Decode a decmpfs payload given its 16-byte header and the file's resource fork
 /// (required only for even/resource-fork compression types; `None` for inline).
 ///
@@ -76,17 +100,9 @@ pub fn read_compressed<R: Read + Seek>(
 /// unsupported `compression_type`, a missing resource fork, a codec rejection, or
 /// a decoded length that disagrees with the header's `uncompressed_size`.
 pub fn decompress_decmpfs(header: &[u8], resource_fork: Option<&[u8]>) -> crate::Result<Vec<u8>> {
-    if header.len() < HEADER_LEN {
-        return Err(ApfsError::Decmpfs(
-            "decmpfs xattr shorter than 16-byte header",
-        ));
-    }
-    let magic = le_u32(header, 0)?;
-    if magic != MAGIC {
-        return Err(ApfsError::Decmpfs("decmpfs bad magic (expected 'cmpf')"));
-    }
+    // Validates the header length and magic before any field is trusted.
+    let uncompressed_size = self::uncompressed_size(header)? as usize;
     let compression_type = le_u32(header, COMPRESSION_TYPE_OFFSET)?;
-    let uncompressed_size = le_u64(header, UNCOMPRESSED_SIZE_OFFSET)? as usize;
 
     let Some(kind) = decmpfs::classify(compression_type) else {
         return Err(match compression_type {

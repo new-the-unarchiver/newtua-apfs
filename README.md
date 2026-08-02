@@ -69,6 +69,23 @@ timeline.
    section.
 4. **`sha2` dev-dependency** is pinned directly (`sha2 = "0.10"`) instead of
    inheriting it from the upstream workspace.
+5. **Bug fix: stream-backed `com.apple.decmpfs` xattrs.** Upstream's
+   `xattr::decmpfs_header` returns `None` when the xattr is stored as a data
+   stream (`XATTR_DATA_STREAM`), treating that form as unexpected. It is not:
+   APFS embeds an xattr value only while it fits in the fs-tree record and
+   spills anything larger (a couple of hundred bytes) into a stream, so on an
+   ordinary volume roughly half the transparently-compressed files take that
+   path — and each one read back as **zero bytes with no error**. The stream
+   form is now read through `extent::read_stream`, exactly as
+   `xattr::resource_fork` already did, under a 1 MiB sanity cap on the
+   image-supplied stream size. Two additions come with it, because a compressed
+   file has no data stream and therefore no inode size at all:
+   `compression::uncompressed_size` (the logical size a decmpfs header
+   declares) and `extent::data_size` (that size for a compressed file, the
+   inode's `DSTREAM` size otherwise); `vfs::…::meta` now reports the former
+   instead of a constant 0. `tests/decmpfs_forms.rs` +
+   `tests/data/apfs_decmpfs.bin` pin all of it against a macOS-minted image
+   carrying both xattr forms. Purely additive to the public API.
 
 Everything else (`src/`, `tests/`) is unmodified from upstream 0.2.0. The
 `vfs`/`forensic-vfs` feature is present but not enabled by default —

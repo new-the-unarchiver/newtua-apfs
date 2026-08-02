@@ -211,6 +211,84 @@ accordingly.
   `tests/compression.rs` (decmpfs all types vs macOS cp SHA-256),
   `tests/xattr.rs` (xattr listing + symlink target vs `xattr -l`/`readlink`).
 
+#### `apfs_decmpfs.bin`
+
+- **Class:** SYNTHETIC (self-minted real APFS), Tier 2.
+- **What it is:** the first **202 blocks** (808 KiB, 4096-byte blocks) of a real
+  APFS *container partition* whose four files are **all** transparently
+  compressed the same way (decmpfs type 3, zlib inside the
+  `com.apple.decmpfs` xattr) and differ **only in how APFS stores that xattr**:
+  two embedded in the fs-tree record, two spilled into a data stream. 202 blocks
+  is the smallest prefix in which all four still read (verified by bisecting the
+  prefix: 201 fails, 202 passes).
+- **Why it exists:** a reader that handles only the embedded form
+  (`XATTR_DATA_EMBEDDED`, flags `0x2`) returns **zero bytes and no error** for
+  every stream-backed one (`XATTR_DATA_STREAM`, flags `0x1`) — a silently empty
+  file. `apfs_content.bin` cannot catch that: its single compressed file is
+  embedded-form. Half the files on an ordinary volume are the other form.
+- **Known content (ground truth — captured by macOS before detach):**
+
+  | path | inode | xattr form | flags | xattr len | size | macOS SHA-256 |
+  |---|---|---|---|---:|---:|---|
+  | `/hello.txt` | 21 | embedded | `0x2` | 32 | 15 | `d8bfbcfd…ffce42` |
+  | `/привет.txt` | 17 | embedded | `0x2` | 39 | 22 | `f509c862…a840ca` |
+  | `/big.txt` | 16 | stream (dstream 22) | `0x1` | 226 | 65529 | `df1515a6…216bec` |
+  | `/nested/deep/tiny.bin` | 20 | stream (dstream 23) | `0x1` | 273 | 256 | `1455fb51…5e0a36` |
+
+  Every one has `inode.size == 0`: a compressed file has no data stream, so it
+  carries no `INO_EXT_TYPE_DSTREAM` xfield — the logical size above is the
+  decmpfs header's `uncompressed_size` (`extent::data_size`). The live volume
+  superblock (APSB) sits at block **199**; block size 4096.
+- **Source:** minted on this macOS host by Apple's own `hdiutil` plus `afsctool`
+  (Homebrew), so both the on-disk structures and the decmpfs payloads are
+  written by Apple's own APFS driver.
+- **Verbatim mint + populate + compress + carve commands:**
+  ```sh
+  # 1. A read-write 20 MiB APFS image (compression can only be applied to files
+  #    already lying on a mounted writable volume, never at image-creation time)
+  hdiutil create -quiet -size 20m -fs APFS -volname corpus-decmpfs \
+      -type UDIF -o /tmp/apfs-decmpfs-rw.dmg
+  hdiutil attach /tmp/apfs-decmpfs-rw.dmg -nobrowse -readwrite   # -> /Volumes/corpus-decmpfs
+  cd /Volumes/corpus-decmpfs
+  printf 'Hello, newtua!\n'   > hello.txt                     # 15 B, embedded xattr
+  printf 'Привет, newtua!\n'  > привет.txt                    # 22 B, embedded xattr
+  # 65529 B of repeating text: compresses to a 226-byte xattr -> stream form
+  python3 -c "open('big.txt','w').write('newtua corpus payload line\n'*2427)"
+  # 256 incompressible bytes: stored raw behind decmpfs's 0xFF marker, so the
+  # xattr grows to 273 bytes -> stream form, from a 256-byte file
+  mkdir -p nested/deep; dd if=/dev/urandom of=nested/deep/tiny.bin bs=256 count=1
+  cd -; sync
+  afsctool -cf /Volumes/corpus-decmpfs        # apply decmpfs to every file
+  afsctool -v  /Volumes/corpus-decmpfs/big.txt   # oracle, see below
+  shasum -a 256 /Volumes/corpus-decmpfs/hello.txt … # oracle, see below
+  hdiutil detach /Volumes/corpus-decmpfs
+  hdiutil convert /tmp/apfs-decmpfs-rw.dmg -format UDRO -o /tmp/apfs_decmpfs.dmg -ov
+  # 2. Attach read-only and carve the first 202 blocks of the Apple_APFS slice
+  hdiutil attach -readonly -nobrowse /tmp/apfs_decmpfs.dmg   # -> /dev/diskNs1 Apple_APFS
+  dd if=/dev/diskNs1 of=apfs_decmpfs.bin bs=4096 count=202
+  hdiutil detach /Volumes/corpus-decmpfs
+  ```
+  The source DMG is kept in the private corpus repository as
+  `corpus/archives/apfs/apfs_decmpfs.dmg` (minted by
+  `corpus/scripts/make-apfs-decmpfs.sh`, the script the commands above inline).
+- **MD5:** `ad5258e00879390ae7de759aceecd53d`
+- **Independent oracles (run on the SAME image):**
+  - **macOS `shasum -a 256`** of each mounted file (Apple's own driver, post-
+    decmpfs): the SHA-256 column above — every one matches
+    `apfs_core::extent::read_data` on the committed carve.
+  - **macOS `ls -l`** on the mounted volume: 15 / 22 / 65529 / 256 bytes — the
+    sizes `apfs_core::extent::data_size` reports, and the ones the inode does
+    *not* carry.
+  - **`afsctool -v`** on each file: "File is HFS+/APFS compressed",
+    "Compression type: ZLIB in decmpfs xattr (3)", and "Uncompressed file size
+    reported in compressed header: 65529 / 256 bytes" — a second, independent
+    reading of the same decmpfs headers.
+- **Redistribution:** entirely machine-generated container with author-written
+  placeholder text and random bytes; no third-party or personal content. Safe to
+  commit (808 KiB raw, ~6 KiB inside the gzipped `.crate`).
+- **Consumed by:** `tests/decmpfs_forms.rs` (both xattr storage forms, content
+  vs the macOS SHA-256 oracle, `data_size` vs `inode.size`).
+
 ## Synthetic fixtures (other mint commands)
 
 Recorded here verbatim when added. Planned set (see `docs/validation.md`):
