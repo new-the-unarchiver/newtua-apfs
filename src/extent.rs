@@ -14,7 +14,9 @@
 //! truncating to the inode's DSTREAM `size`; if the inode carries a
 //! `com.apple.decmpfs` xattr, [`crate::compression`] is applied transparently
 //! over the decmpfs payload (inline xattr or `com.apple.ResourceFork` stream)
-//! instead of the regular extent stream.
+//! instead of the regular extent stream. [`data_size`] answers "how many bytes
+//! will that be" for either kind of file — a compressed one has no DSTREAM
+//! xfield at all, so its size is in the decmpfs header, not in the inode.
 
 use std::io::{Read, Seek};
 
@@ -164,4 +166,29 @@ pub fn read_data<R: Read + Seek>(
 
     let size = inode.size.unwrap_or(0);
     read_stream(reader, volume, inode.private_id, size, block_size)
+}
+
+/// The logical size of a file's content — the number of bytes [`read_data`]
+/// returns.
+///
+/// For an ordinary file this is the inode's DSTREAM `size`. A transparently
+/// compressed file has **no** ordinary data stream, so it carries no DSTREAM
+/// xfield and [`Inode::size`] is `None`: its true size lives in the
+/// `com.apple.decmpfs` header's `uncompressed_size`, which this reads. Callers
+/// that display or pre-allocate a file size must ask here rather than trust
+/// `inode.size`, or every compressed file reads as zero bytes long.
+///
+/// # Errors
+/// [`crate::ApfsError::Decmpfs`] if a decmpfs header is malformed; the
+/// structural errors of [`crate::xattr::decmpfs_header`] when fetching it.
+pub fn data_size<R: Read + Seek>(
+    reader: &mut R,
+    volume: &ApfsVolume,
+    inode: &Inode,
+    block_size: usize,
+) -> crate::Result<u64> {
+    if let Some(header) = crate::xattr::decmpfs_header(reader, volume, inode.oid, block_size)? {
+        return crate::compression::uncompressed_size(&header);
+    }
+    Ok(inode.size.unwrap_or(0))
 }

@@ -222,8 +222,10 @@ fn mode_to_kind(mode: u16) -> NodeKind {
     }
 }
 
-/// Assemble the unified [`FsMeta`] from an APFS inode.
-fn build_meta(inode: &Inode) -> FsMeta {
+/// Assemble the unified [`FsMeta`] from an APFS inode. `size` is the logical
+/// content length from [`extent::data_size`]: a transparently-compressed file
+/// has no data stream of its own, so its size cannot be read off the inode.
+fn build_meta(inode: &Inode, size: u64) -> FsMeta {
     let ts = |ns: u64| TimeStamp {
         unix_nanos: i128::from(ns),
         source: TimeSource::InodeTable,
@@ -233,7 +235,7 @@ fn build_meta(inode: &Inode) -> FsMeta {
         ino: inode.oid,
         kind: mode_to_kind(inode.mode),
         allocated: Allocation::Allocated,
-        size: inode.size.unwrap_or(0),
+        size,
         nlink: inode.nlink_or_nchildren.max(0) as u32,
         uid: Some(inode.uid),
         gid: Some(inode.gid),
@@ -345,7 +347,9 @@ impl<R: Read + Seek + Send> FileSystem for ApfsFs<R> {
         let mut guard = self.reader.lock().map_err(|_| poisoned())?;
         let inode =
             dir::load_inode(&mut *guard, &self.volume, node, self.block_size).map_err(map_err)?;
-        Ok(build_meta(&inode))
+        let size = extent::data_size(&mut *guard, &self.volume, &inode, self.block_size)
+            .map_err(map_err)?;
+        Ok(build_meta(&inode, size))
     }
 
     fn read_at(&self, ino: FileId, stream: StreamId, off: u64, buf: &mut [u8]) -> VfsResult<usize> {
