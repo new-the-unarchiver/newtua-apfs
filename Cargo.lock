@@ -247,7 +247,7 @@ dependencies = [
 
 [[package]]
 name = "newtua-apfs"
-version = "0.2.0-newtua.1"
+version = "0.2.0-newtua.2"
 dependencies = [
  "bitflags",
  "chrono",

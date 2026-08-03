@@ -46,7 +46,8 @@ timeline.
 
 1. **`[package]` in `Cargo.toml`**: `name`, `version`, `edition`,
    `repository`, and `readme` were changed to describe this fork
-   (`newtua-apfs`, `0.2.0-newtua.1`, edition 2024, this repository). The
+   (`newtua-apfs`, `0.2.0-newtua.2`, this repository); the edition stays
+   upstream's 2021. The
    `[lib]` section is unchanged: `name = "apfs_core"` — the bare `apfs` name
    on crates.io belongs to an unrelated read-only parser, so the import path
    stays `apfs_core`, exactly as upstream had it. Dependencies that used to
